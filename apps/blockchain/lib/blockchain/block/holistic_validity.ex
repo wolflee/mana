@@ -126,10 +126,30 @@ defmodule Blockchain.Block.HolisticValidity do
 
   @spec check_gas_used([atom()], Block.t(), Block.t()) :: [atom()]
   defp check_gas_used(errors, child_block, block) do
+    IO.inspect(child_block.header.gas_used)
+    IO.inspect(block.header.gas_used)
     if child_block.header.gas_used == block.header.gas_used do
       errors
     else
       [:gas_used_mismatch | errors]
     end
+  end
+  def dump_state(state) do
+    state
+    |> Trie.Inspector.all_values()
+    |> Enum.map(fn {key, value} ->
+      k = Base.encode16(key, case: :lower)
+      v = value |> ExRLP.decode() |> Account.deserialize()
+      {k, v}
+    end)
+    |> Enum.map(fn {address_key, account} ->
+      IO.puts(address_key)
+      IO.puts("  Balance: #{account.balance}")
+      IO.puts("  Nonce: #{account.nonce}")
+      IO.puts("  Storage Root:")
+      IO.puts("  " <> Base.encode16(account.storage_root))
+      IO.puts("  Code Hash")
+      IO.puts("  " <> Base.encode16(account.code_hash))
+    end)
   end
 end

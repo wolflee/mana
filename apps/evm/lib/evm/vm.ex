@@ -60,6 +60,7 @@ defmodule EVM.VM do
   @spec exec(MachineState.t(), SubState.t(), ExecEnv.t()) ::
           {MachineState.t(), SubState.t(), ExecEnv.t(), output}
   def exec(machine_state, sub_state, exec_env) do
+    IO.inspect(Base.encode16(exec_env.machine_code, case: :lower), limit: :infinity)
     do_exec(machine_state, sub_state, exec_env, {machine_state, sub_state, exec_env})
   end
 
@@ -141,6 +142,8 @@ defmodule EVM.VM do
       Operation.run(operation, machine_state, sub_state, exec_env)
 
     final_machine_state = MachineState.move_program_counter(n_machine_state, operation, inputs)
+
+    EVM.Logger.log_state(operation, final_machine_state)
 
     {final_machine_state, n_sub_state, n_exec_env}
   end

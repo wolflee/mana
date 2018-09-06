@@ -166,9 +166,9 @@ defmodule Blockchain.StateTest do
   end
 
   defp grouped_test_per_fork do
-    for fork <- forks_with_existing_implementation(),
-        test_group <- split_tests_into_groups(@num_test_groups),
-        do: {fork, test_group}
+    # for fork <- forks_with_existing_implementation(),
+    for test_group <- split_tests_into_groups(@num_test_groups),
+        do: {"Frontier", test_group}
   end
 
   defp split_tests_into_groups(num_groups_desired) do
