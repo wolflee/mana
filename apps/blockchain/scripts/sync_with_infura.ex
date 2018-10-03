@@ -6,7 +6,8 @@ defmodule SyncWithInfura do
 
   def setup() do
     db = MerklePatriciaTree.DB.RocksDB.init(db_name())
-    chain = Blockchain.Chain.load_chain(:foundation)
+    config = EVM.Configuration.SpuriousDragon.new()
+    chain = Blockchain.Chain.load_chain(:ropsten, config)
 
     {db, chain}
   end

@@ -127,6 +127,8 @@ defmodule Blockchain.Block.HolisticValidity do
     if child_block.header.gas_used == block.header.gas_used do
       errors
     else
+      IO.inspect(child_block.header.gas_used)
+      IO.inspect(block.header.gas_used)
       [:gas_used_mismatch | errors]
     end
   end

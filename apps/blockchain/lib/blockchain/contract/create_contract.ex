@@ -19,7 +19,8 @@ defmodule Blockchain.Contract.CreateContract do
             stack_depth: 0,
             block_header: nil,
             new_account_address: nil,
-            config: EVM.Configuration.Frontier.new()
+            config: EVM.Configuration.Frontier.new(),
+            debug: false
 
   @typedoc """
   Yellow Paper Terms:
@@ -44,7 +45,8 @@ defmodule Blockchain.Contract.CreateContract do
           stack_depth: integer(),
           block_header: Header.t(),
           new_account_address: nil | EVM.address(),
-          config: EVM.Configuration.t()
+          config: EVM.Configuration.t(),
+          debug: boolean()
         }
 
   @spec execute(t()) :: {:ok | :error, {AccountInterface.t(), EVM.Gas.t(), EVM.SubState.t()}}
@@ -121,7 +123,8 @@ defmodule Blockchain.Contract.CreateContract do
       stack_depth: params.stack_depth,
       block_interface: BlockInterface.new(params.block_header, account_interface.state.db),
       account_interface: account_interface,
-      config: params.config
+      config: params.config,
+      debugging: params.debug
     }
 
     EVM.VM.run(params.available_gas, exec_env)

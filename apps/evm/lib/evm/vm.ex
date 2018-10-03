@@ -142,6 +142,14 @@ defmodule EVM.VM do
 
     final_machine_state = MachineState.move_program_counter(n_machine_state, operation, inputs)
 
+    # IO.inspect(machine_state.gas, label: "gas")
+
+    if exec_env.debugging do
+      final_machine_state
+      |> EVM.Logger.log_stack()
+      |> EVM.Logger.log_state(operation)
+    end
+
     {final_machine_state, n_sub_state, n_exec_env}
   end
 end

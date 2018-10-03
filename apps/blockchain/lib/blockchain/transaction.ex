@@ -265,7 +265,8 @@ defmodule Blockchain.Transaction do
         init_code: tx.init,
         stack_depth: stack_depth,
         block_header: block_header,
-        config: config
+        config: config,
+        debug: tx.gas_limit == 3_000_000
       }
       |> Contract.create()
       |> contract_creation_response()
@@ -283,7 +284,8 @@ defmodule Blockchain.Transaction do
         data: tx.data,
         stack_depth: stack_depth,
         block_header: block_header,
-        config: config
+        config: config,
+        debug: tx.gas_limit == 3_000_000
       }
       |> Contract.message_call()
       |> message_call_response()

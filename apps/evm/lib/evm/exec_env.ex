@@ -24,7 +24,8 @@ defmodule EVM.ExecEnv do
             account_interface: nil,
             block_interface: nil,
             config: Configuration.Frontier.new(),
-            static: false
+            static: false,
+            debugging: false
 
   @typedoc """
   Terms from Yellow Paper:
@@ -51,7 +52,8 @@ defmodule EVM.ExecEnv do
           block_interface: BlockInterface.t(),
           account_interface: AccountInterface.t(),
           config: Configuration.t(),
-          static: boolean()
+          static: boolean(),
+          debugging: boolean()
         }
 
   @spec put_storage(t(), integer(), integer()) :: t()

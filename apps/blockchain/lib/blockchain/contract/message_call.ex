@@ -21,7 +21,8 @@ defmodule Blockchain.Contract.MessageCall do
             data: <<>>,
             stack_depth: 0,
             block_header: nil,
-            config: EVM.Configuration.Frontier.new()
+            config: EVM.Configuration.Frontier.new(),
+            debug: false
 
   @typedoc """
   Terms from the Yellow Paper:
@@ -50,7 +51,8 @@ defmodule Blockchain.Contract.MessageCall do
           data: binary(),
           stack_depth: integer(),
           block_header: Header.t(),
-          config: EVM.Configuration.t()
+          config: EVM.Configuration.t(),
+          debug: boolean()
         }
 
   @doc """
@@ -94,7 +96,8 @@ defmodule Blockchain.Contract.MessageCall do
       stack_depth: params.stack_depth,
       block_interface: BlockInterface.new(params.block_header, account_interface.state.db),
       account_interface: account_interface,
-      config: params.config
+      config: params.config,
+      debugging: params.debug
     }
 
     {gas, sub_state, exec_env, output} = run.(params.available_gas, exec_env)

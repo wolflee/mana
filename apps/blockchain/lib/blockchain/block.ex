@@ -722,8 +722,12 @@ defmodule Blockchain.Block do
        ) do
     state = Trie.new(db, header.state_root)
 
+    IO.inspect(trx, label: "transaction")
+
     {new_account_interface, gas_used, receipt} =
       Transaction.execute_with_validation(state, trx, header, chain)
+
+    IO.inspect(gas_used)
 
     new_state = AccountInterface.commit(new_account_interface).state
 
