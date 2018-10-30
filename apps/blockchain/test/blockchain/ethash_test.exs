@@ -2,6 +2,7 @@ defmodule Blockchain.EthashTest do
   use ExUnit.Case, async: true
 
   alias Blockchain.Ethash
+  alias ExthCrypto.Hash
 
   test "it can calculate the epoch from block number" do
     results =
@@ -40,6 +41,14 @@ defmodule Blockchain.EthashTest do
         |> Enum.map(&Ethash.cache_size/1)
 
       assert results == [16_776_896, 285_081_536]
+    end
+  end
+
+  describe "seed_hash/1" do
+    test "returns the seed hash for block 1" do
+      result = Ethash.seed_hash(1)
+
+      assert result == <<0::256>>
     end
   end
 end

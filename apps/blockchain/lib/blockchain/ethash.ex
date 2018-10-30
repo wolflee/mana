@@ -50,6 +50,10 @@ defmodule Blockchain.Ethash do
     )
   end
 
+  def seed_hash(block_number) do
+    <<0::256>>
+  end
+
   defp highest_prime_below_threshold(upper_bound, unit_size: unit_size) do
     adjusted_upper_bound = div(upper_bound, unit_size)
 
