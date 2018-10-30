@@ -50,5 +50,11 @@ defmodule Blockchain.EthashTest do
 
       assert result == <<0::256>>
     end
+
+    test "returns a keccec of the original hash for 30000 < block < 60000" do
+      result = Ethash.seed_hash(50_000)
+
+      assert result == 0
+    end
   end
 end
