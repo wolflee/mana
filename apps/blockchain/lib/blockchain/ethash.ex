@@ -103,71 +103,31 @@ defmodule Blockchain.Ethash do
     init_mix = initialize_mix(cache, i)
 
     0..(@j_parents - 1)
-    |> Enum.reduce(init_mix, fn j, mix ->
-      mix_index = Integer.mod(j, r)
+    |> Enum.reduce(init_mix, fn p, mix ->
+      mix_index = Integer.mod(p, r)
 
       cache_index =
-        FNV.hash(bxor(i, j), Enum.at(mix, mix_index))
+        FNV.hash(bxor(i, p), Enum.at(mix, mix_index))
         |> Integer.mod(cache_size)
 
       FNV.hash_lists(mix, Enum.at(cache, cache_index))
     end)
-
-    # |> Enum.map(&:binary.encode_unsigned/1)
-    # |> Enum.join()
-    # |> Keccak.kec512()
-    # |> Base.encode16(case: :lower)
+    |> Enum.map(&:binary.encode_unsigned/1)
+    |> Enum.join()
+    |> Keccak.kec512()
   end
 
   defp initialize_mix(cache, i) do
     cache_size = length(cache)
     index = Integer.mod(i, cache_size)
-    mix = Enum.at(cache, index)
-    first_element = hd(mix)
-    updated_first = bxor(first_element, i)
-
-    List.replace_at(mix, 0, updated_first)
-  end
-
-  defp calculate_dataset_item_old(cache, i) do
-    parents(cache, i, -1, [])
-  end
-
-  defp parents(cache, i, p, m) when p < @j_parents - 2 do
-    mix_result = mix(m, cache, i, p + 1)
-    parents(cache, i, p + 1, mix_result)
-  end
-
-  defp parents(cache, i, p, m) do
-    mix(m, cache, i, p + 1)
-  end
-
-  defp mix(_m, cache, i, 0 = _p) do
-    cache_size = length(cache)
-    index = Integer.mod(i, cache_size)
 
     Enum.at(cache, index)
-    |> :crypto.exor(i)
-    # bxor(i)
-    # |> :binary.encode_unsigned()
+    |> :binary.list_to_bin()
+    |> :binary.decode_unsigned()
+    |> bxor(i)
+    |> :binary.encode_unsigned()
     |> Keccak.kec512()
     |> :binary.bin_to_list()
-  end
-
-  defp mix(mix, cache, i, p) when is_list(mix) do
-    cache_size = length(cache)
-    mix_index = Integer.mod(p, div(@j_hashbytes, @j_wordbytes))
-
-    cache_index =
-      FNV.hash(bxor(i, p), Enum.at(mix, mix_index))
-      |> Integer.mod(cache_size)
-
-    cache_element =
-      Enum.at(cache, cache_index)
-      |> :binary.encode_unsigned()
-      |> :binary.bin_to_list()
-
-    FNV.hash_lists(mix, cache_element)
   end
 
   @doc """
