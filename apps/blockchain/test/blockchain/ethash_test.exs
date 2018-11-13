@@ -640,11 +640,51 @@ defmodule Blockchain.EthashTest do
         |> Enum.map(&:binary.bin_to_list/1)
 
       cache_size = 1024
-      epoch = 0
-      seed = Ethash.seed_hash(epoch)
+      block_number = 1
+      seed = Ethash.seed_hash(block_number)
       initial_cache = Ethash.initial_cache(seed, cache_size)
 
       cache = Ethash.calculate_cache(initial_cache)
+
+      assert cache == expected_cache
+    end
+
+    test "matches golangs implementation part 2" do
+      expected_golang_cache =
+        EthCommonTest.Helpers.maybe_hex(
+          "0x" <>
+            "1f56855d59cc5a085720899b4377a0198f1abe948d85fe5820dc0e346b7c0931b9cde8e541d751de3b2b3275d0aabfae316209d5879297d8bd99f8a033c9d4df" <>
+            "35add1029f4e6404a022d504fb8023e42989aba985a65933b0109c7218854356f9284983c9e7de97de591828ae348b63d1fc78d8db58157344d4e06530ffd422" <>
+            "5c7f6080d451ff94961ec2dd9e28e6d81b49102451676dbdcb6ef1094c1e8b29e7e808d47b2ba5aeb52dabf00d5f0ee08c116289cbf56d8132e5ca557c3d6220" <>
+            "5ba3a48539acabfd4ca3c89e3aaa668e24ffeaeb9eb0136a9fc5a8a676b6d5ad76175eeda0a1fa44b5ff5591079e4b7f581569b6c82416adcb82d7e92980df67" <>
+            "2248c4024013e7be52cf91a82491627d9e6d80eda2770ab82badc5e120cd33a4c84495f718b57396a8f397e797087fad81fa50f0e2f5da71e40816a85de35a96" <>
+            "3cd351364905c45b3116ff25851d43a2ca1d2aa5cdb408440dabef8c57778fc18608bf431d0c7ffd37649a21a7bb9d90def39c821669dbaf165c0262434dfb08" <>
+            "5d057a12de4a7a59fd2dfc931c29c20371abf748b69b618a9bd485b3fb3166cad4d3d27edf0197aabeceb28b96670bdf020f26d1bb9b564aaf82d866bdffd6d4" <>
+            "1aea89e20b15a5d1264ab01d1556bfc2a266081609d60928216bd9646038f07de9fedcc9f2b86ab1b07d7bd88ba1df08b3d89b2ac789001b48a723f217debcb7" <>
+            "090303a3ef50c1d5d99a75c640ec2b401ab149e06511753d8c49cafdde2929ae61e09cc0f0319d262869d21ead9e0cf5ff2de3dbedfb994f32432d2e4aa44c82" <>
+            "7c42781d1477fe03ea0772998e776d63363c6c3edd2d52c89b4d2c9d89cdd90fa33b2b41c8e3f78ef06fe90bcf5cc5756d33a032f16b744141aaa8852bb4cb3a" <>
+            "40792b93489c6d6e56c235ec4aa36c263e9b766a4daaff34b2ea709f9f811aef498a65bfbc1deffd36fcc4d1a123345fac7bf57a1fb50394843cd28976a6c7ff" <>
+            "fe70f7b8d8f384aa06e2c9964c92a8788cef397fffdd35181b42a35d5d98cd7244bbd09e802888d7efc0311ae58e0961e3656205df4bdc553f317df4b6ede4ca" <>
+            "846294a32aec830ab1aa5aac4e78b821c35c70fd752fec353e373bf9be656e775a0111bcbeffdfebd3bd5251d27b9f6971aa561a2bd27a99d61b2ce3965c3726" <>
+            "1e114353e6a31b09340f4078b8a8c6ce6ff4213067a8f21020f78aff4f8b472b701ef730aacb8ce7806ea31b14abe8f8efdd6357ca299d339abc4e43ba324ad1" <>
+            "efe6eb1a5a6e137daa6ec9f6be30931ca368a944cfcf2a0a29f9a9664188f0466e6f078c347f9fe26a9a89d2029462b19245f24ace47aecace6ef85a4e96b31b" <>
+            "5f470eb0165c6375eb8f245d50a25d521d1e569e3b2dccce626752bb26eae624a24511e831a81fab6898a791579f462574ca4851e6588116493dbccc3072e0c5"
+        )
+
+      expected_cache =
+        for <<chunk::size(512) <- expected_golang_cache>> do
+          <<chunk::size(512)>>
+        end
+        |> Enum.map(&:binary.bin_to_list/1)
+
+      cache_size = 1024
+      block = 30001
+
+      cache =
+        block
+        |> Ethash.seed_hash()
+        |> Ethash.initial_cache(cache_size)
+        |> Ethash.calculate_cache()
 
       assert cache == expected_cache
     end
