@@ -114,29 +114,11 @@ defmodule Blockchain.Ethash do
   defp initialize_mix(cache, i) do
     mix = Enum.at(cache, Integer.mod(i, length(cache)))
 
-    element =
-      Enum.at(cache, Integer.mod(i, cache_size))
-      |> :binary.list_to_bin()
-      |> :binary.decode_unsigned()
-
-    modified_cache_element =
-      bxor(element, i)
-      |> :binary.encode_unsigned()
-
-    element = bxor(Enum.at(mix, 0), i)
-
-  defp mix(mix, cache, i, p) do
-    cache_size = length(cache)
-    mix_index = Integer.mod(p, div(@j_hashbytes, @j_wordbytes))
-
     mix
-    |> List.replace_at(0, element)
-    |> keccak()
-  end
-
-  defp keccak(list) do
-    list
     |> :binary.list_to_bin()
+    |> :binary.decode_unsigned(:little)
+    |> bxor(i)
+    |> :binary.encode_unsigned(:little)
     |> Keccak.kec512()
     |> :binary.bin_to_list()
   end
