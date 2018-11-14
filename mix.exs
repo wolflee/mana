@@ -33,7 +33,7 @@ defmodule Mana.MixProject do
     [
       {:ex_rlp, "~> 0.3.1"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
+      #      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:ethereumex, "~> 0.5.1"},
       {:jason, "~> 1.1"},
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
