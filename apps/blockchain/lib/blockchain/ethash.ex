@@ -98,23 +98,21 @@ defmodule Blockchain.Ethash do
   end
 
   defp calculate_dataset_item(cache, i) do
-    parents(cache, i, -1, [])
-    |> Enum.map(&:binary.encode_unsigned/1)
-    |> Enum.join()
-    |> Keccak.kec512()
+    n = length(cache)
+    r = div(@j_hashbytes, @j_wordbytes)
+
+    init_mix = initialize_mix(cache, i)
+
+    0..(@j_parents - 1)
+    |> Enum.reduce(init_mix, fn j, mix ->
+      mix_index = Integer.mod(j, r)
+      cache_index = FNV.hash(bxor(i, j), Enum.at(mix, mix_index))
+      FNV.hash_lists(mix, Enum.at(cache, Integer.mod(cache_index, n)))
+    end)
   end
 
-  defp parents(cache, i, p, mix) when p < @j_parents - 2 do
-    mix_result = mix(mix, cache, i, p + 1)
-    parents(cache, i, p + 1, mix_result)
-  end
-
-  defp parents(cache, i, p, mix) do
-    mix(mix, cache, i, p + 1)
-  end
-
-  defp mix(_mix, cache, i, 0) do
-    cache_size = length(cache)
+  defp initialize_mix(cache, i) do
+    mix = Enum.at(cache, Integer.mod(i, length(cache)))
 
     element =
       Enum.at(cache, Integer.mod(i, cache_size))
@@ -125,19 +123,22 @@ defmodule Blockchain.Ethash do
       bxor(element, i)
       |> :binary.encode_unsigned()
 
-    Keccak.kec512(modified_cache_element)
-    |> :binary.bin_to_list()
-  end
+    element = bxor(Enum.at(mix, 0), i)
 
   defp mix(mix, cache, i, p) do
     cache_size = length(cache)
     mix_index = Integer.mod(p, div(@j_hashbytes, @j_wordbytes))
 
-    cache_index =
-      FNV.hash(bxor(i, p), Enum.at(mix, mix_index))
-      |> Integer.mod(cache_size)
+    mix
+    |> List.replace_at(0, element)
+    |> keccak()
+  end
 
-    FNV.hash_lists(mix, Enum.at(cache, cache_index))
+  defp keccak(list) do
+    list
+    |> :binary.list_to_bin()
+    |> Keccak.kec512()
+    |> :binary.bin_to_list()
   end
 
   @doc """

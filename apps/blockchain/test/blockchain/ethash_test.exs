@@ -5,6 +5,8 @@ defmodule Blockchain.EthashTest do
   alias Blockchain.Ethash.RandMemoHash
   alias ExthCrypto.Hash.Keccak
 
+  use Bitwise
+
   test "it can calculate the epoch from block number" do
     results =
       [1, 29_999, 30_000, 90_000]
@@ -590,11 +592,14 @@ defmodule Blockchain.EthashTest do
 
       cache_size = 1024
       dataset_size = 32 * 1024
-      seed = <<0::256>>
       size = 64 * 8
+      block = 1
 
-      initial_cache = Ethash.initial_cache(seed, cache_size)
-      cache = Ethash.calculate_cache(initial_cache)
+      cache =
+        block
+        |> Ethash.seed_hash()
+        |> Ethash.initial_cache(cache_size)
+        |> Ethash.calculate_cache()
 
       expected_dataset =
         for <<chunk::size(size) <- expected_golang_dataset>> do
@@ -641,10 +646,12 @@ defmodule Blockchain.EthashTest do
 
       cache_size = 1024
       block_number = 1
-      seed = Ethash.seed_hash(block_number)
-      initial_cache = Ethash.initial_cache(seed, cache_size)
 
-      cache = Ethash.calculate_cache(initial_cache)
+      cache =
+        block_number
+        |> Ethash.seed_hash()
+        |> Ethash.initial_cache(cache_size)
+        |> Ethash.calculate_cache()
 
       assert cache == expected_cache
     end
