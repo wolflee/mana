@@ -377,7 +377,7 @@ defmodule EVM.Gas do
 
         exec_env.config.empty_account_value_transfer &&
           ExecEnv.non_existent_or_empty_account?(exec_env, address) &&
-            ExecEnv.get_balance(exec_env) > 0 ->
+            ExecEnv.get_balance(exec_env, exec_env.address) > 0 ->
           true
 
         true ->

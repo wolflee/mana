@@ -21,11 +21,7 @@ defmodule EVM.Operation.System do
   """
   @spec create(Operation.stack_args(), Operation.op_result()) :: Operation.op_result()
   def create([value, input_offset, input_size], vm_map = %{exec_env: exec_env}) do
-    nonce =
-      AccountRepo.repo(exec_env.account_repo).get_account_nonce(
-        exec_env.account_repo,
-        exec_env.address
-      )
+    nonce = ExecEnv.account_nonce(exec_env, exec_env.address)
 
     new_account_address = Address.new(exec_env.address, nonce)
 
@@ -267,11 +263,7 @@ defmodule EVM.Operation.System do
        ) do
     {data, machine_state} = EVM.Memory.read(machine_state, input_offset, input_size)
 
-    account_balance =
-      AccountRepo.repo(exec_env.account_repo).get_account_balance(
-        exec_env.account_repo,
-        exec_env.address
-      )
+    account_balance = ExecEnv.get_balance(exec_env, exec_env.address)
 
     block_header = BlockHeaderInfo.block_header(exec_env.block_header_info)
 
@@ -289,13 +281,7 @@ defmodule EVM.Operation.System do
 
     {status, {updated_account_repo, n_gas, n_sub_state, output}} =
       if is_allowed do
-        account_repo =
-          AccountRepo.repo(exec_env.account_repo).increment_account_nonce(
-            exec_env.account_repo,
-            exec_env.address
-          )
-
-        n_exec_env = %{exec_env | account_repo: account_repo}
+        n_exec_env = ExecEnv.increment_account_nonce(exec_env, exec_env.address)
 
         AccountRepo.repo(exec_env.account_repo).create_contract(
           n_exec_env.account_repo,

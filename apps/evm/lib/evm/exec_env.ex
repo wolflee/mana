@@ -100,8 +100,8 @@ defmodule EVM.ExecEnv do
     AccountRepo.repo(account_repo).get_initial_storage(account_repo, address, key)
   end
 
-  @spec get_balance(t()) :: EVM.Wei.t()
-  def get_balance(%{account_repo: account_repo, address: address}) do
+  @spec get_balance(t(), EVM.Address.t()) :: EVM.Wei.t()
+  def get_balance(%{account_repo: account_repo}, address) do
     AccountRepo.repo(account_repo).get_account_balance(account_repo, address)
   end
 
@@ -158,5 +158,40 @@ defmodule EVM.ExecEnv do
       )
 
     is_empty_account || non_existent_account?(exec_env, address)
+  end
+
+  @spec account_code(t(), EVM.Address.t()) :: nil | binary()
+  def account_code(exec_env, address) do
+    AccountRepo.repo(exec_env.account_repo).get_account_code(
+      exec_env.account_repo,
+      address
+    )
+  end
+
+  @spec code_hash(t(), EVM.Address.t()) :: binary() | nil
+  def code_hash(exec_env, address) do
+    AccountRepo.repo(exec_env.account_repo).get_account_code_hash(
+      exec_env.account_repo,
+      address
+    )
+  end
+
+  @spec account_nonce(t(), EVM.Address.t()) :: integer()
+  def account_nonce(exec_env, address) do
+    AccountRepo.repo(exec_env.account_repo).get_account_nonce(
+      exec_env.account_repo,
+      address
+    )
+  end
+
+  @spec increment_account_nonce(t(), EVM.Address.t()) :: t()
+  def increment_account_nonce(exec_env, address) do
+    updated_repo =
+      AccountRepo.repo(exec_env.account_repo).increment_account_nonce(
+        exec_env.account_repo,
+        address
+      )
+
+    %{exec_env | account_repo: updated_repo}
   end
 end
