@@ -609,8 +609,12 @@ defmodule Blockchain.EthashTest do
       result = Ethash.calculate_dataset(cache, dataset_size)
 
       assert length(result) == length(expected_dataset)
-      assert Enum.slice(result, 0, 10) == Enum.slice(expected_dataset, 0, 10)
+      assert Enum.slice(result, 0, 11) == Enum.slice(expected_dataset, 0, 11)
+      assert Enum.slice(result, 12, 11) == Enum.slice(expected_dataset, 12, 11)
+      assert Enum.slice(result, 24, 11) == Enum.slice(expected_dataset, 24, 11)
+      assert Enum.slice(result, 36, 11) == Enum.slice(expected_dataset, 36, 11)
       assert Enum.at(result, 11) == Enum.at(expected_dataset, 11)
+      assert Enum.at(result, 23) == Enum.at(expected_dataset, 23)
       assert result == expected_dataset
     end
   end
