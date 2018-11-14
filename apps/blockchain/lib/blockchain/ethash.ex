@@ -102,13 +102,30 @@ defmodule Blockchain.Ethash do
     r = div(@j_hashbytes, @j_wordbytes)
 
     init_mix = initialize_mix(cache, i)
+    uint_mix = make_into_uint_list(init_mix)
 
     0..(@j_parents - 1)
-    |> Enum.reduce(init_mix, fn j, mix ->
+    |> Enum.reduce(uint_mix, fn j, mix ->
       mix_index = Integer.mod(j, r)
       cache_index = FNV.hash(bxor(i, j), Enum.at(mix, mix_index))
-      FNV.hash_lists(mix, Enum.at(cache, Integer.mod(cache_index, n)))
+      full_cache_index = Integer.mod(cache_index, n)
+
+      cache_element = Enum.at(cache, full_cache_index)
+
+      cache_uint = make_into_uint_list(cache_element)
+
+      FNV.hash_lists(mix, cache_uint)
     end)
+    |> Enum.map(&:binary.encode_unsigned(&1, :little))
+    |> Enum.join()
+    |> Keccak.kec512()
+  end
+
+  defp make_into_uint_list(list) do
+    list
+    |> Enum.chunk_every(4)
+    |> Enum.map(&:binary.list_to_bin/1)
+    |> Enum.map(&:binary.decode_unsigned(&1, :little))
   end
 
   defp initialize_mix(cache, i) do
